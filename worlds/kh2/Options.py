@@ -129,6 +129,16 @@ class FightLogic(Choice):
     default = 1
 
 
+class CheeseLogicToggle(Toggle):
+    """Have fight "cheese" in logic. I.E Quick run Roxas, double negative combo, Peter Pan Stunlocking
+
+    Note: this does not mean cheese is the only way to do these bosses in logic.
+
+    Cheese is NOT connected to fight logic difficulty (the option above) in any way."""
+    display_name = "Cheese Logic Toggle"
+    default = True
+
+
 class FinalFormLogic(Choice):
     """Determines forcing final form logic
 
@@ -325,39 +335,40 @@ class FillerItemsLocal(Toggle):
 
 
 KH2_Options: typing.Dict[str, type(Option)] = {
-    "LevelDepth":               LevelDepth,
-    "Sora_Level_EXP":           SoraEXP,
-    "Valor_Form_EXP":           ValorEXP,
-    "Wisdom_Form_EXP":          WisdomEXP,
-    "Limit_Form_EXP":           LimitEXP,
-    "Master_Form_EXP":          MasterEXP,
-    "Final_Form_EXP":           FinalEXP,
-    "Summon_EXP":               SummonEXP,
-    "Schmovement":              Schmovement,
-    "RandomGrowth":             RandomGrowth,
-    "AntiForm":                 AntiForm,
-    "Promise_Charm":            PromiseCharm,
-    "Goal":                     Goal,
-    "FinalXemnas":              FinalXemnas,
-    "LuckyEmblemsAmount":       LuckyEmblemsAmount,
-    "LuckyEmblemsRequired":     LuckyEmblemsRequired,
-    "BountyAmount":             BountyAmount,
-    "BountyRequired":           BountyRequired,
+    "LevelDepth": LevelDepth,
+    "Sora_Level_EXP": SoraEXP,
+    "Valor_Form_EXP": ValorEXP,
+    "Wisdom_Form_EXP": WisdomEXP,
+    "Limit_Form_EXP": LimitEXP,
+    "Master_Form_EXP": MasterEXP,
+    "Final_Form_EXP": FinalEXP,
+    "Summon_EXP": SummonEXP,
+    "Schmovement": Schmovement,
+    "RandomGrowth": RandomGrowth,
+    "AntiForm": AntiForm,
+    "Promise_Charm": PromiseCharm,
+    "Goal": Goal,
+    "FinalXemnas": FinalXemnas,
+    "LuckyEmblemsAmount": LuckyEmblemsAmount,
+    "LuckyEmblemsRequired": LuckyEmblemsRequired,
+    "BountyAmount": BountyAmount,
+    "BountyRequired": BountyRequired,
     "BountyStartingHintToggle": BountyStartHint,
-    "Keyblade_Minimum":         KeybladeMin,
-    "Keyblade_Maximum":         KeybladeMax,
-    "WeaponSlotStartHint":      WeaponSlotStartHint,
-    "FightLogic":               FightLogic,
-    "FinalFormLogic":           FinalFormLogic,
-    "AutoFormLogic":            AutoFormLogic,
-    "DonaldGoofyStatsanity":    DonaldGoofyStatsanity,
-    "FillerItemsLocal":         FillerItemsLocal,
-    "Visitlocking":             Visitlocking,
-    "RandomVisitLockingItem":   RandomVisitLockingItem,
-    "SuperBosses":              SuperBosses,
-    "Cups":                     Cups,
-    "AtlanticaToggle":          AtlanticaToggle,
-    "CorSkipToggle":            CorSkipToggle,
-    "CustomItemPoolQuantity":   CustomItemPoolQuantity,
+    "Keyblade_Minimum": KeybladeMin,
+    "Keyblade_Maximum": KeybladeMax,
+    "WeaponSlotStartHint": WeaponSlotStartHint,
+    "FightLogic": FightLogic,
+    "CheeseFightLogic": CheeseLogicToggle,
+    "FinalFormLogic": FinalFormLogic,
+    "AutoFormLogic": AutoFormLogic,
+    "DonaldGoofyStatsanity": DonaldGoofyStatsanity,
+    "FillerItemsLocal": FillerItemsLocal,
+    "Visitlocking": Visitlocking,
+    "RandomVisitLockingItem": RandomVisitLockingItem,
+    "SuperBosses": SuperBosses,
+    "Cups": Cups,
+    "AtlanticaToggle": AtlanticaToggle,
+    "CorSkipToggle": CorSkipToggle,
+    "CustomItemPoolQuantity": CustomItemPoolQuantity,
 
 }
