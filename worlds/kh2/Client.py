@@ -10,14 +10,155 @@ from . import item_dictionary_table, exclusion_item_table, CheckDupingItems, all
 from .Names import ItemName
 from .WorldLocations import *
 
+<<<<<<< Updated upstream
 from NetUtils import ClientStatus
 from CommonClient import gui_enabled, logger, get_base_parser, CommonContext, server_loop
+=======
+from NetUtils import ClientStatus, NetworkItem
+from CommonClient import ClientCommandProcessor, gui_enabled, logger, get_base_parser, CommonContext, server_loop
+
+
+
+class KH2CommandProcessor(ClientCommandProcessor):
+    ctx: KH2Context
+
+    def _cmd_deathlink(self):
+        """Toggles Deathlink"""
+        if self.ctx.deathlink_toggle:
+            # self.ctx.tags.add("DeathLink")
+            self.ctx.deathlink_toggle = False
+            self.output(f"Death Link turned off")
+        else:
+            self.ctx.deathlink_toggle = True
+            self.output(f"Death Link turned on")
+
+    def _cmd_add_to_blacklist(self, player_name: str = ""):
+        """Adds player to deathlink blacklist"""
+        if player_name not in self.ctx.deathlink_blacklist:
+            self.ctx.deathlink_blacklist.append(player_name)
+
+    def _cmd_remove_from_blacklist(self, player_name: str = ""):
+        """Removes player from the deathlink blacklist"""
+        if player_name in self.ctx.deathlink_blacklist:
+            self.ctx.deathlink_blacklist.remove(player_name)
+>>>>>>> Stashed changes
 
 
 class KH2Context(CommonContext):
     # command_processor: int = KH2CommandProcessor
     game = "Kingdom Hearts 2"
     items_handling = 0b111  # Indicates you get items sent from other worlds.
+
+    def to_khscii(self, input):
+    # A dictionary of all the special characters, which
+    # are hard to convert through a mathematical formula.
+        special_dict = {
+            ' ': 0x01,
+            '\n': 0x02,
+            '-': 0x54,
+            '!': 0x48,
+            '?': 0x49,
+            '%': 0x4A,
+            '/': 0x4B,
+            '.': 0x4F,
+            ',': 0x50,
+            ';': 0x51,
+            ':': 0x52,
+            '\'': 0x57,
+            '(': 0x5A,
+            ')': 0x5B,
+            '[': 0x62,
+            ']': 0x63,
+            'à': 0xB7,
+            'á': 0xB8,
+            'â': 0xB9,
+            'ä': 0xBA,
+            'è': 0xBB,
+            'é': 0xBC,
+            'ê': 0xBD,
+            'ë': 0xBE,
+            'ì': 0xBF,
+            'í': 0xC0,
+            'î': 0xC1,
+            'ï': 0xC2,
+            'ñ': 0xC3,
+            'ò': 0xC4,
+            'ó': 0xC5,
+            'ô': 0xC6,
+            'ö': 0xC7,
+            'ù': 0xC8,
+            'ú': 0xC9,
+            'û': 0xCA,
+            'ü': 0xCB,
+            'ç': 0xE8,
+            'À': 0xD0,
+            'Á': 0xD1,
+            'Â': 0xD2,
+            'Ä': 0xD3,
+            'È': 0xD4,
+            'É': 0xD5,
+            'Ê': 0xD6,
+            'Ë': 0xD7,
+            'Ì': 0xD8,
+            'Í': 0xD9,
+            'Î': 0xDA,
+            'Ï': 0xDB,
+            'Ñ': 0xDC,
+            'Ò': 0xDD,
+            'Ó': 0xDE,
+            'Ô': 0xDF,
+            'Ö': 0xE0,
+            'Ù': 0xE1,
+            'Ú': 0xE2,
+            'Û': 0xE3,
+            'Ü': 0xE4,
+            '¡': 0xE5,
+            '¿': 0xE6,
+            'Ç': 0xE7
+        }
+        
+        out_list = []
+        char_count = 0
+        # Throughout the text, do:
+        while char_count < len(input):
+            char = input[char_count]
+            # Simple character conversion through mathematics.
+            if char >= 'a' and char <= 'z':
+                out_list.append(ord(char)  + 0x39)
+                char_count += 1
+            elif char >= 'A' and char <= 'Z':
+                out_list.append(ord(char)  - 0x13)
+                char_count += 1
+            elif char >= '0' and char <= '9':
+                out_list.append(ord(char) + 0x60)
+                char_count += 1
+            # If it hits a "{", we will know it's a command, not a character.
+            elif char == '{':
+                # A command is 6 characters long, in the format of "{0xTT}",
+                # with the "TT" being the 2-digit encode for that command.
+                command = input[char_count:char_count+6]
+                if re.match(r'^{0x[a-fA-F0-9][a-fA-F0-9]}$', command):
+                    value = command[1:5]
+                    out_list.append(int(value, 16))
+                    char_count += 6
+            # Should it be anything we do not know, we look through
+            # the special dictionary.
+            else:
+                if char in special_dict:
+                    out_list.append(special_dict[char])
+                else:
+                    out_list.append(0x01)
+                char_count += 1
+                if char_count >= 24:
+                    break
+
+        # When the list ends, we add a terminator and return the string.
+                
+        if len(input) >= 24:
+            out_list.append([0x2E, 0x2E, 0x2E])
+
+        out_list.append(0x00)
+        return out_list
 
     def __init__(self, server_address, password):
         super(KH2Context, self).__init__(server_address, password)
@@ -218,6 +359,9 @@ class KH2Context(CommonContext):
 
     def kh2_write_byte(self, address, value):
         return self.kh2.write_bytes(self.kh2.base_address + address, value.to_bytes(1, 'big'), 1)
+    
+    def kh2_write_bytes(self, address, value):
+        return self.kh2.write_bytes(self.kh2.base_address + address, bytes(value), len(value))
 
     def kh2_read_byte(self, address):
         return int.from_bytes(self.kh2.read_bytes(self.kh2.base_address + address, 1), "big")
@@ -328,6 +472,31 @@ class KH2Context(CommonContext):
                 new_locations = set(args["checked_locations"])
                 self.locations_checked |= new_locations
 
+<<<<<<< Updated upstream
+=======
+        if cmd == "PrintJSON":
+            # shamelessly stolen from kh1
+            if args["type"] == "ItemSend":
+                item = args["item"]
+                networkItem = NetworkItem(*item)
+                recieverID = args["receiving"]
+                senderID = networkItem.player
+                locationID = networkItem.location
+                if recieverID != self.slot and senderID == self.slot:
+                    self.kh2_write_bytes(0x840000, bytes([0] * 32))
+                    self.kh2_write_bytes(0x840020, bytes([0] * 32))
+
+                    itemName = self.item_names[networkItem.item]
+                    itemCategory = networkItem.flags
+                    recieverName = self.player_names[recieverID]
+
+                    itemKHSCII = self.to_khscii(itemName)
+                    playerKHSCII = self.to_khscii(recieverName)
+
+                    self.kh2_write_bytes(0x840000, itemKHSCII)
+                    self.kh2_write_bytes(0x840020, playerKHSCII)
+
+>>>>>>> Stashed changes
         if cmd in {"DataPackage"}:
             self.kh2_loc_name_to_id = args["data"]["games"]["Kingdom Hearts 2"]["location_name_to_id"]
             self.lookup_id_to_location = {v: k for k, v in self.kh2_loc_name_to_id.items()}
